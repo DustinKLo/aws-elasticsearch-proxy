@@ -3,19 +3,16 @@ package main
 import (
 	"net/http"
 
-	creds "github.com/hysds/aws-elasticsearch-proxy/awscredentials"
 	L "github.com/hysds/aws-elasticsearch-proxy/logger"
 	proxy "github.com/hysds/aws-elasticsearch-proxy/reverseproxy"
-	utils "github.com/hysds/aws-elasticsearch-proxy/utils"
+	"github.com/hysds/aws-elasticsearch-proxy/utils"
 )
 
 func main() {
 	service := "es"
-	region := utils.GetAwsRegion()
-	signer := creds.GetAwsSigner()
 
-	host := utils.GetEsEndpoint() // use environment variables instead
-	reverseProxy := proxy.AwsEsReverseProxy(host, signer, region, service)
+	host := utils.GetEsEndpoint()
+	reverseProxy := proxy.AwsEsReverseProxy(host, service)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {

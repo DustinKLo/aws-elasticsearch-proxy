@@ -7,7 +7,6 @@ LABEL maintainer="dustin.k.lo@nasa.jpl.gov"
 WORKDIR /app
 
 # Copy go mod and sum files
-# COPY go.mod go.sum ./
 COPY go.mod ./
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
@@ -19,7 +18,7 @@ COPY . .
 # Build the Go app
 RUN go build .
 
-# Expose port 8080 to the outside world
+# Expose port 9001 to the outside world
 EXPOSE 9001
 
 # Command to run the executable

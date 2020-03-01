@@ -9,13 +9,17 @@ import (
 	"net/url"
 	"time"
 
-	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	creds "github.com/hysds/aws-elasticsearch-proxy/awscredentials"
 	L "github.com/hysds/aws-elasticsearch-proxy/logger"
+	utils "github.com/hysds/aws-elasticsearch-proxy/utils"
 )
 
-func AwsEsReverseProxy(host string, signer *v4.Signer, region string, service string) *httputil.ReverseProxy {
+func AwsEsReverseProxy(host string, service string) *httputil.ReverseProxy {
 	origin, _ := url.Parse(host)
 	reverseProxy := httputil.NewSingleHostReverseProxy(origin)
+
+	region := utils.GetAwsRegion()
+	signer := creds.GetAwsSigner()
 
 	reverseProxy.Director = func(req *http.Request) {
 		req.Header.Set("Accept", "*/*")
