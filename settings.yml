@@ -1,0 +1,9 @@
+log_level: debug # debug, info, warning, error
+# log_file_path: /Users/dustinlo/Desktop/log.log
+
+# host: http://localhost:9200
+http_scheme: http
+verify_ssl: false
+
+service: es
+aws_region: us-west-2

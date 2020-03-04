@@ -1,0 +1,9 @@
+log_level: warn # debug, info, warning, error
+log_file_path: /path/to/log/file.log
+
+host: http://localhost:9200
+http_scheme: http
+verify_ssl: false
+
+service: es
+aws_region: us-west-2

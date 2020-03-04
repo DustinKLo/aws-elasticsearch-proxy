@@ -1,28 +1,19 @@
 package awscredentials
 
 import (
-	"os"
-
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	L "github.com/hysds/aws-elasticsearch-proxy/logger"
 )
 
+// https://docs.aws.amazon.com/sdk-for-go/api/aws/ec2metadata/#EC2Metadata.Region
 func GetAwsSigner() *v4.Signer {
-	provider := credentials.SharedCredentialsProvider{}
-
-	fileCreds, err := provider.Retrieve()
+	session, err := session.NewSession()
 	if err != nil {
 		L.Logging.Error(err)
-		panic("Cannot retrieve credentials from $HOME/.aws/credentials")
+		panic(err)
 	}
 
-	L.Logging.Info("AWS Credentials:", fileCreds)
-	os.Setenv("AWS_ACCESS_KEY_ID", fileCreds.AccessKeyID) // setting the environment variables
-	os.Setenv("AWS_SECRET_ACCESS_KEY", fileCreds.SecretAccessKey)
-	os.Setenv("AWS_SESSION_TOKEN", fileCreds.SessionToken)
-
-	creds := credentials.NewEnvCredentials() // taken from AWS environment variables
-
+	creds := session.Config.Credentials
 	return v4.NewSigner(creds)
 }

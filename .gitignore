@@ -14,6 +14,8 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 
+test.go
+
 aws-elasticsearch-proxy
 
 .DS_Store

@@ -3,16 +3,19 @@ package main
 import (
 	"net/http"
 
+	"github.com/hysds/aws-elasticsearch-proxy/configs"
 	L "github.com/hysds/aws-elasticsearch-proxy/logger"
 	proxy "github.com/hysds/aws-elasticsearch-proxy/reverseproxy"
-	"github.com/hysds/aws-elasticsearch-proxy/utils"
 )
 
 func main() {
-	service := "es"
+	host := configs.Host
+	if host == "" {
+		L.Logging.Warning("host not found in settings.yml, defaulting to http://localhost:9200")
+		host = "http://localhost:9200"
+	}
 
-	host := utils.GetEsEndpoint()
-	reverseProxy := proxy.AwsEsReverseProxy(host, service)
+	reverseProxy := proxy.AwsEsReverseProxy(host)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {

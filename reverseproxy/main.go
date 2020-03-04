@@ -2,6 +2,7 @@ package reverseproxy
 
 import (
 	"bytes"
+	"crypto/tls"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -10,52 +11,56 @@ import (
 	"time"
 
 	creds "github.com/hysds/aws-elasticsearch-proxy/awscredentials"
+	"github.com/hysds/aws-elasticsearch-proxy/configs"
 	L "github.com/hysds/aws-elasticsearch-proxy/logger"
-	utils "github.com/hysds/aws-elasticsearch-proxy/utils"
 )
 
-func AwsEsReverseProxy(host string, service string) *httputil.ReverseProxy {
+func AwsEsReverseProxy(host string) *httputil.ReverseProxy {
 	origin, _ := url.Parse(host)
 	reverseProxy := httputil.NewSingleHostReverseProxy(origin)
 
-	region := utils.GetAwsRegion()
+	service := configs.Service
+	region := configs.AWSRegion
 	signer := creds.GetAwsSigner()
 
 	reverseProxy.Director = func(req *http.Request) {
-		req.Header.Set("Accept", "*/*")
-		req.Header.Add("X-Forwarded-Host", req.Host)
-		req.Header.Add("X-Origin-Host", origin.Host)
-		req.URL.Scheme = "http"
+		req.Header.Del("Accept")
+		req.Header.Del("Content-Length")
+		req.Header.Del("X-Forwarded-For")
+		req.Header.Del("User-Agent")
+		req.Header.Del("Connection")
+
+		req.Host = origin.Host
 		req.URL.Host = origin.Host
+		req.URL.Scheme = configs.HttpScheme
 
 		if req.Body == nil { // for GET, DELETE requests
 			signer.Sign(req, nil, service, region, time.Now()) // signing request
-			L.Logging.Info(req)
-			return
+		} else {
+			body, err := ioutil.ReadAll(req.Body) // reading request body for AWS signature
+			if err != nil {
+				L.Logging.Error("Error reading body:", err)
+				return
+			}
+			req.Body = ioutil.NopCloser(bytes.NewBuffer(body))     // restore io.ReadCloser to its original state (can only be read once)
+			newBody := bytes.NewReader(body)                       // converting to type io.Reader for AWS signature
+			signer.Sign(req, newBody, service, region, time.Now()) // signing request
 		}
-
-		body, err := ioutil.ReadAll(req.Body) // reading request body for AWS signature
+		dump, err := httputil.DumpRequestOut(req, true)
 		if err != nil {
-			L.Logging.Error("Error reading body:", err)
+			L.Logging.Error(err)
 			return
 		}
-
-		// Restore io.ReadCloser to its original state (request body can only be read once)
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-		newBody := bytes.NewReader(body)                       // converting to type io.Reader for AWS signature
-		signer.Sign(req, newBody, service, region, time.Now()) // signing request
-		L.Logging.Info(req)
+		L.Logging.Info(string(dump))
 	}
 
 	reverseProxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
 		L.Logging.Error(err)
-		w.WriteHeader(500)
+		w.WriteHeader(503)
 		w.Write([]byte(err.Error()))
 	}
 
-	// not sure I saw this somewhere and decided to use it
-	reverseProxy.Transport = &http.Transport{
+	proxyTransport := &http.Transport{ // not sure I saw this somewhere and decided to use it
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			Timeout:   60 * time.Second,
@@ -67,6 +72,10 @@ func AwsEsReverseProxy(host string, service string) *httputil.ReverseProxy {
 		TLSHandshakeTimeout:   10 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
 	}
+	if configs.VerifySSL == false {
+		proxyTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} // verify SSL
+	}
+	reverseProxy.Transport = proxyTransport
 
 	return reverseProxy
 }

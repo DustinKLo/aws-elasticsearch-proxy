@@ -7,6 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/hysds/aws-elasticsearch-proxy/configs"
 )
 
 var Logging = &logrus.Logger{
@@ -19,20 +21,18 @@ var Logging = &logrus.Logger{
 }
 
 func init() {
-	var logFile = os.Getenv("LOG_FILE_PATH")
-	if logFile == "" {
+	if configs.LogFile == "" {
 		Logging.SetOutput(os.Stdout)
 	} else {
 		Logging.SetOutput(&lumberjack.Logger{
-			Filename:   logFile,
+			Filename:   configs.LogFile,
 			MaxSize:    500, // MBs
 			MaxBackups: 1,
 			MaxAge:     28, // days
 		})
 	}
 
-	logLevel := os.Getenv("LOG_LEVEL")
-	switch strings.ToLower(logLevel) {
+	switch strings.ToLower(configs.LogLevel) {
 	case "error":
 		Logging.SetLevel(logrus.ErrorLevel)
 	case "warn":
