@@ -1,13 +1,16 @@
-## Set AWS Credentials as environment variable
+## Loading configurations from settings.yml
 
 ```
-# make sure there is a $HOME/.aws/credentials file
-export AWS_REGION=us-west-1
+# settings.yml
+log_level: warn # debug, info, warning, error
+log_file_path: /path/to/log/file.log
 
-# other environment variables
-export LOG_FILE_PATH=/path/to/log/file  # will default to stdout if not found
-export LOG_LEVEL=debug  # (warn, warning, debug, error)
-export HOST=http://localhost:9200  # Elasticsearch endpoint
+host: http://localhost:9200
+http_scheme: http
+verify_ssl: false
+
+service: es
+aws_region: us-west-2
 ```
 
 ## Run app
