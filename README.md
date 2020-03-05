@@ -13,9 +13,21 @@ service: es
 aws_region: us-west-2
 ```
 
-## Run app
+## Run application
 ```
 go run main.go
+```
+
+## Dockerize application
+```
+# docker build
+docker build -t aws-elasticsearch-proxy:latest .
+
+# docker run with environment variable file
+docker run \
+    -v ~/.aws:/root/.aws \
+    -p 9001:9001 \
+    aws-elasticsearch-proxy:latest
 ```
 
 ## Example of signed request

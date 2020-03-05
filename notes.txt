@@ -3,7 +3,6 @@ docker build -t aws-elasticsearch-proxy:latest .
 
 # docker run with environment variable file
 docker run \
-    --env-file .env \
     -v ~/.aws:/root/.aws \
     -p 9001:9001 \
     aws-elasticsearch-proxy:latest
