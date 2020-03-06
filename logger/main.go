@@ -2,7 +2,6 @@ package logger
 
 import (
 	"os"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
@@ -32,14 +31,18 @@ func init() {
 		})
 	}
 
-	switch strings.ToLower(configs.LogLevel) {
-	case "error":
+	// ERROR 40
+	// WARNING 30
+	// INFO 20
+	// DEBUG 10
+	switch configs.LogLevel {
+	case 40:
 		Logging.SetLevel(logrus.ErrorLevel)
-	case "warn":
+	case 30:
 		Logging.SetLevel(logrus.WarnLevel)
-	case "warning":
-		Logging.SetLevel(logrus.WarnLevel)
-	case "debug":
+	case 20:
+		Logging.SetLevel(logrus.InfoLevel)
+	case 10:
 		Logging.SetLevel(logrus.DebugLevel)
 	default:
 		Logging.SetLevel(logrus.WarnLevel)

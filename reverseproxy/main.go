@@ -46,12 +46,15 @@ func AwsEsReverseProxy(host string) *httputil.ReverseProxy {
 			newBody := bytes.NewReader(body)                       // converting to type io.Reader for AWS signature
 			signer.Sign(req, newBody, service, region, time.Now()) // signing request
 		}
-		dump, err := httputil.DumpRequestOut(req, true)
-		if err != nil {
-			L.Logging.Error(err)
-			return
+
+		if configs.LogLevel <= 20 {
+			dump, err := httputil.DumpRequestOut(req, true)
+			if err != nil {
+				L.Logging.Debug(err)
+				return
+			}
+			L.Logging.Info(string(dump))
 		}
-		L.Logging.Info(string(dump))
 	}
 
 	reverseProxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {

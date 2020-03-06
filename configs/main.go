@@ -1,13 +1,14 @@
 package configs
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
 )
 
 type Settings struct {
-	LogLevel   string `yaml:"log_level"`
+	LogLevel   int    `yaml:"log_level"`
 	LogFile    string `yaml:"log_file_path"`
 	Host       string `yaml:"host"`
 	HttpScheme string `yaml:"http_scheme"`
@@ -44,8 +45,9 @@ var AWSRegion = s.AWSRegion
 var Service = s.Service
 
 func init() { // initializing and defaulting yaml settings
-	if LogLevel == "" {
-		LogLevel = "warn"
+	fmt.Println("LogLevel", LogLevel)
+	if LogLevel == 0 {
+		LogLevel = 30 // defaults to WARN level
 	}
 
 	if HttpScheme == "https" {
