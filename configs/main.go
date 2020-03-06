@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -23,7 +22,7 @@ func checkErr(err error) {
 	}
 }
 
-func ReadYaml() Settings {
+func readYaml() Settings {
 	s := Settings{}
 
 	yamlFile := "settings.yml"
@@ -35,7 +34,7 @@ func ReadYaml() Settings {
 	return s
 }
 
-var s Settings = ReadYaml()
+var s Settings = readYaml()
 var LogLevel = s.LogLevel
 var LogFile = s.LogFile
 var Host = s.Host
@@ -45,14 +44,11 @@ var AWSRegion = s.AWSRegion
 var Service = s.Service
 
 func init() { // initializing and defaulting yaml settings
-	fmt.Println("LogLevel", LogLevel)
 	if LogLevel == 0 {
 		LogLevel = 30 // defaults to WARN level
 	}
 
-	if HttpScheme == "https" {
-		HttpScheme = "https"
-	} else {
+	if HttpScheme != "https" {
 		HttpScheme = "http"
 	}
 
