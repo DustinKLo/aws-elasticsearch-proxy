@@ -21,7 +21,7 @@ func AwsEsReverseProxy(host string) *httputil.ReverseProxy {
 
 	service := configs.Service
 	region := configs.AWSRegion
-	signer := creds.GetAwsSigner()
+	signer := creds.GetSigner()
 
 	reverseProxy.Director = func(req *http.Request) {
 		req.Header.Del("Accept")
