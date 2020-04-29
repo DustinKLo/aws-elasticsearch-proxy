@@ -5,6 +5,8 @@
 log_level: 10
 log_file_path: /path/to/log/file.log
 
+port: 9001
+
 host: http://localhost:9200
 http_scheme: http
 verify_ssl: false

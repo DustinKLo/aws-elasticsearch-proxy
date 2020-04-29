@@ -9,6 +9,7 @@ import (
 type Settings struct {
 	LogLevel   int    `yaml:"log_level"`
 	LogFile    string `yaml:"log_file_path"`
+	Port       int    `yaml:"port"`
 	Host       string `yaml:"host"`
 	HttpScheme string `yaml:"http_scheme"`
 	VerifySSL  bool   `yaml:"verify_ssl"` // defaults to false if blank
@@ -37,6 +38,7 @@ func readYaml() Settings {
 var s Settings = readYaml()
 var LogLevel = s.LogLevel
 var LogFile = s.LogFile
+var Port = s.Port
 var Host = s.Host
 var HttpScheme = s.HttpScheme
 var VerifySSL = s.VerifySSL

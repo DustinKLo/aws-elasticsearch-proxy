@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/hysds/aws-elasticsearch-proxy/configs"
@@ -28,7 +29,13 @@ func main() {
 		}
 	})
 
-	port := ":9001" // use environment variable
+	var port string
+	if configs.Port == 0 {
+		L.Logging.Warning("no port defined in settings.yml, defaulting to 9001")
+		port = ":9001"
+	} else {
+		port = fmt.Sprintf(":%d", configs.Port)
+	}
 	L.Logging.Info("Proxy server running on port", port)
 	server := http.ListenAndServe(port, nil)
 	L.Logging.Fatal(server)
