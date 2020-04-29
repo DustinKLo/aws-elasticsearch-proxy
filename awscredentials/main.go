@@ -22,6 +22,7 @@ var signer = v4.NewSigner(creds)
 // https://docs.aws.amazon.com/sdk-for-go/api/aws/ec2metadata/#EC2Metadata.Region
 func GetSigner() *v4.Signer {
 	if creds.IsExpired() == true { // refreshes credentials
+		L.Logging.Warning("credentials expired, refreshing...")
 		curSession = createSession()
 		creds = curSession.Config.Credentials
 		signer = v4.NewSigner(creds)
